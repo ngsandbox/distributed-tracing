@@ -50,7 +50,7 @@ public class RoutesCounter {
         }
 
         public int count() {
-            count(fromIdx, String.valueOf(fromChr));
+            count(fromIdx, Graph.toNodeName(fromChr));
             return routesCount;
         }
 

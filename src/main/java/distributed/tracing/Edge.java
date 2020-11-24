@@ -1,7 +1,5 @@
 package distributed.tracing;
 
-import java.util.Objects;
-
 public class Edge {
     public final int fromIdx;
     public final int toIdx;
@@ -28,10 +26,5 @@ public class Edge {
                 ", toIdx=" + Graph.toNodeName(toIdx) +
                 ", weight=" + weight +
                 '}';
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(toIdx);
     }
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Graph {
     /**
-     * Mapping edges to `from` and `to` coordinates
+     * Mapping Edges to `from` and `to` Microservices
      */
     private final Map<Integer, Map<Integer, Edge>> matrix = new HashMap<>();
 

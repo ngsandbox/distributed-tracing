@@ -50,7 +50,7 @@ public class TracesCounter {
 
         public int count() {
             int fromIdx = Graph.toNodeIdx(fromChr);
-            calculateTripsCount(fromIdx, String.valueOf(fromChr));
+            calculateTripsCount(fromIdx, Graph.toNodeName(fromChr));
             return counter;
         }
 

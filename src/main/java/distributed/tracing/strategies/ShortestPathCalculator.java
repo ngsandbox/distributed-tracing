@@ -37,7 +37,7 @@ public class ShortestPathCalculator {
 
         public int calculate() {
             int from = Graph.toNodeIdx(fromChr);
-            calculate(from, String.valueOf(fromChr));
+            calculate(from, Graph.toNodeName(fromChr));
 
             int minLatency = Integer.MAX_VALUE;
             int crnAvgLatency;
