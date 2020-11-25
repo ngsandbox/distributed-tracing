@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 
 import distributed.tracing.strategies.AverageLatencyCalculator;
 import distributed.tracing.strategies.RoutesCounter;
-import distributed.tracing.strategies.ShortestPathCalculator;
+import distributed.tracing.strategies.ShortestTraceCalculator;
 import distributed.tracing.strategies.TracesCounter;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -32,10 +32,10 @@ public class App {
 
         System.out.println(counter.count('C', 'C', t -> t <= 3));
         System.out.println(counter.count('A', 'C', t -> t == 4));
-        ShortestPathCalculator shortestPathCalculator = new ShortestPathCalculator(calculator.getGraph());
+        ShortestTraceCalculator shortestTraceCalculator = new ShortestTraceCalculator(calculator.getGraph());
 
-        System.out.println(shortestPathCalculator.calculate('A', 'C'));
-        System.out.println(shortestPathCalculator.calculate('B', 'B'));
+        System.out.println(shortestTraceCalculator.calculate('A', 'C'));
+        System.out.println(shortestTraceCalculator.calculate('B', 'B'));
 
         RoutesCounter routesCounter = new RoutesCounter(calculator.getGraph());
         System.out.println(routesCounter.count('C', 'C', 30));

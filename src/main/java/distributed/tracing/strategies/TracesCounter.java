@@ -21,52 +21,53 @@ public class TracesCounter {
     /**
      * Count number of traces originating in service {@param fromChr} and ending in {@param toChr}.
      *
-     * @param fromChr   start character
-     * @param toChr     end character
-     * @param predicate control amount of hops
+     * @param fromChr       start Microservice
+     * @param toChr         end Microservice
+     * @param hopsPredicate control amount of hops
      * @return count of hops
      */
-    public int count(Character fromChr,
-                     Character toChr,
-                     Predicate<Integer> predicate) {
-        return new TracesCounterInternal(fromChr, toChr, predicate).count();
+    public int count(char fromChr,
+                     char toChr,
+                     Predicate<Integer> hopsPredicate) {
+        return new TracesCounterInternal(fromChr, toChr, hopsPredicate).count();
     }
 
     private class TracesCounterInternal {
-        private final Character fromChr;
-        private final Predicate<Integer> predicate;
+        private final char fromChr;
+        private final Predicate<Integer> hopsPredicate;
         private final int toIdx;
         private int counter;
 
         public TracesCounterInternal(
-                Character fromChr,
-                Character toChr,
-                Predicate<Integer> predicate) {
+                char fromChr,
+                char toChr,
+                Predicate<Integer> hopsPredicate) {
             this.fromChr = fromChr;
-            this.predicate = predicate;
+            this.hopsPredicate = hopsPredicate;
             this.toIdx = Graph.toNodeIdx(toChr);
             counter = 0;
         }
 
         public int count() {
-            int fromIdx = Graph.toNodeIdx(fromChr);
-            calculateTripsCount(fromIdx, Graph.toNodeName(fromChr));
+            countTraces(Graph.toNodeIdx(fromChr), Graph.toNodeName(fromChr));
             return counter;
         }
 
-        private void calculateTripsCount(int fromIdx,
-                                         String path) {
+        private void countTraces(int fromIdx,
+                                 String path) {
             List<Edge> edges = graph.edges(fromIdx);
             for (Edge edge : edges) {
                 String next = path + Graph.toNodeName(edge.toIdx);
                 int pathLength = next.length() - 1;
                 if (this.toIdx == edge.toIdx
-                        && predicate.test(pathLength)) {
+                        && hopsPredicate.test(pathLength)) {
                     counter++;
                 }
 
-                if (pathLength <= graph.size() * 2) {
-                    calculateTripsCount(edge.toIdx, next);
+                if (pathLength < graph.limit()) {
+                    countTraces(edge.toIdx, next);
+                } else {
+                    //throw new IllegalStateException("Perhaps an infinite loop detected for path: " + next);
                 }
             }
         }

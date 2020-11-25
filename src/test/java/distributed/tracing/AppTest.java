@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 import distributed.tracing.strategies.AverageLatencyCalculator;
 import distributed.tracing.strategies.RoutesCounter;
-import distributed.tracing.strategies.ShortestPathCalculator;
+import distributed.tracing.strategies.ShortestTraceCalculator;
 import distributed.tracing.strategies.TracesCounter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,15 +45,15 @@ class AppTest {
 
     @Test
     void testShortestPath() {
-        ShortestPathCalculator calculator = new ShortestPathCalculator(TEST_CASE);
-        assertEquals(calculator.calculate('A', 'C'), 9);
-        assertEquals(calculator.calculate('B', 'B'), 9);
+        ShortestTraceCalculator calculator = new ShortestTraceCalculator(TEST_CASE);
+        assertEquals(9, calculator.calculate('A', 'C'));
+        assertEquals(9, calculator.calculate('B', 'B'));
     }
 
     @Test
     void testFailShortestPath() {
-        ShortestPathCalculator calculator = new ShortestPathCalculator(TEST_CASE);
-        assertNotEquals(calculator.calculate('A', 'F'), 12);
+        ShortestTraceCalculator calculator = new ShortestTraceCalculator(TEST_CASE);
+        assertNotEquals(12, calculator.calculate('A', 'F'));
     }
 
     @Test
@@ -64,6 +64,10 @@ class AppTest {
 
     @Test
     void testFailRoute() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new Graph(null), "Traces is not provided");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new Graph(""), "Traces is not provided");
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new Graph("BB5, BB7"), "Trace is duplicated");
         Assertions.assertThrows(IllegalArgumentException.class,

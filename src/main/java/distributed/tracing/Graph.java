@@ -11,12 +11,16 @@ public class Graph {
      */
     private final Map<Integer, Map<Integer, Edge>> matrix = new HashMap<>();
 
-    public Graph(String route) {
-        initializeGraph(route);
+    public Graph(String traces) {
+        initializeGraph(traces);
     }
 
-    private void initializeGraph(String routes) {
-        String[] inputArr = routes.split(",");
+    private void initializeGraph(String traces) {
+        if (traces == null || traces.isEmpty()) {
+            throw new IllegalArgumentException("Traces is not provided");
+        }
+
+        String[] inputArr = traces.split(",");
         for (String trace : inputArr) {
             Edge edge = buildEdge(trace);
             matrix.compute(edge.fromIdx, (integer, edges) -> {
@@ -33,7 +37,7 @@ public class Graph {
     private Edge buildEdge(String trace) {
         String trimmed = trace.trim();
         if (trimmed.length() < 3) {
-            throw new IllegalArgumentException("Route length has to be at least 3 symbols, but: " + trimmed);
+            throw new IllegalArgumentException("Trace length has to be at least 3 symbols, but: " + trimmed);
         }
 
         char fromChr = trimmed.charAt(0);
@@ -92,7 +96,7 @@ public class Graph {
         return new ArrayList<>(matrix.get(fromIdx).values());
     }
 
-    public int size() {
-        return matrix.size();
+    public int limit() {
+        return matrix.size() * matrix.size();
     }
 }
