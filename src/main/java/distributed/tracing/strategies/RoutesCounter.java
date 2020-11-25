@@ -58,7 +58,8 @@ public class RoutesCounter {
             List<Edge> edges = graph.edges(from);
             for (Edge edge : edges) {
                 String next = path + Graph.toNodeName(edge.toIdx);
-                int distance = latencyCalculator.calcAvgLatency(next);
+                int distance = latencyCalculator.calcAvgLatency(next)
+                        .orElse(Integer.MAX_VALUE);
                 if (this.toIdx == edge.toIdx
                         && distance < maxDistance) {
                     routesCount++;

@@ -2,6 +2,7 @@ package distributed.tracing.strategies;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import distributed.tracing.Edge;
 import distributed.tracing.Graph;
@@ -51,8 +52,8 @@ public class ShortestTraceCalculator {
 
             return allPath.stream()
                     .map(averageLatencyCalculator::calcAvgLatency)
-                    .filter(t -> t > TRACE_NOT_FOUNT)
-                    .mapToInt(t -> t)
+                    .filter(Optional::isPresent)
+                    .mapToInt(Optional::get)
                     .min().orElse(TRACE_NOT_FOUNT);
         }
 
