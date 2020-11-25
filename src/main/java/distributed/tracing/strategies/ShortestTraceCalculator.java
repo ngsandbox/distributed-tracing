@@ -7,6 +7,7 @@ import distributed.tracing.Edge;
 import distributed.tracing.Graph;
 
 import static distributed.tracing.Graph.toNodeName;
+import static distributed.tracing.strategies.AverageLatencyCalculator.TRACE_NOT_FOUNT;
 
 public class ShortestTraceCalculator {
 
@@ -27,7 +28,7 @@ public class ShortestTraceCalculator {
      *
      * @param fromChr start Microservice
      * @param toChr   end Microservice
-     * @return length of the shortest trace or {@literal -1} if latency for founded trace has not been found
+     * @return length of the shortest trace or {@literal -1} if traces has not been found
      */
     public int calculate(char fromChr, char toChr) {
         return new ShortestTraceCalculatorInternal(fromChr, toChr).calculate();
@@ -48,38 +49,23 @@ public class ShortestTraceCalculator {
             int from = Graph.toNodeIdx(fromChr);
             calculatePath(from, "");
 
-            int minLatency = Integer.MAX_VALUE;
-            int crnAvgLatency;
-            for (String path : allPath) {
-                crnAvgLatency = averageLatencyCalculator.calcAvgLatency(path);
-                if (minLatency > crnAvgLatency) {
-                    minLatency = crnAvgLatency;
-                }
-            }
-
-            if (minLatency == Integer.MAX_VALUE) {
-                return 0;
-            }
-
-            return minLatency;
+            return allPath.stream()
+                    .map(averageLatencyCalculator::calcAvgLatency)
+                    .filter(t -> t > TRACE_NOT_FOUNT)
+                    .mapToInt(t -> t)
+                    .min().orElse(TRACE_NOT_FOUNT);
         }
 
         private void calculatePath(int from, String path) {
             Edge toEdge = graph.findEdge(from, this.toIdx);
             if (toEdge != null) {
-                allPath.add(toNodeName(fromChr) + path + Graph.toNodeName(this.toIdx));
+                allPath.add(toNodeName(fromChr) + path + toNodeName(this.toIdx));
                 return;
             }
 
             for (Edge edge : graph.edges(from)) {
-                String toNodeName = Graph.toNodeName(edge.toIdx);
-                if (!path.isEmpty() && path.contains(toNodeName)) {
-                    continue;
-                }
-
-                String next = path + toNodeName;
                 if (path.length() < graph.limit()) {
-                    calculatePath(edge.toIdx, next);
+                    calculatePath(edge.toIdx, path + toNodeName(edge.toIdx));
                 } else {
                     //throw new IllegalStateException("Perhaps an infinite loop detected for path: " + next);
                 }

@@ -5,6 +5,8 @@ import distributed.tracing.Graph;
 
 public class AverageLatencyCalculator {
 
+    public static int TRACE_NOT_FOUNT = -1;
+
     private final Graph graph;
 
     public AverageLatencyCalculator(String route) {
@@ -27,7 +29,7 @@ public class AverageLatencyCalculator {
      */
     public String calculate(String trace) {
         int result = calcAvgLatency(trace);
-        return result > -1 ? Integer.toString(result) : "NO SUCH TRACE";
+        return result > TRACE_NOT_FOUNT ? Integer.toString(result) : "NO SUCH TRACE";
     }
 
     /**
@@ -53,7 +55,7 @@ public class AverageLatencyCalculator {
             if (toEdge != null) {
                 distance += toEdge.weight;
             } else {
-                return -1;
+                return TRACE_NOT_FOUNT;
             }
         }
 
