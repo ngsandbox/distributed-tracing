@@ -62,7 +62,7 @@ class AppTest {
     @Test
     void testRoutesCount() {
         RoutesCounter counter = new RoutesCounter(TEST_CASE);
-        assertEquals(counter.count('C', 'C', 30), 7);
+        assertEquals(7, counter.count('C', 'C', 30));
     }
 
     @Test

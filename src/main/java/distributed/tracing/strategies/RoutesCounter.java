@@ -8,7 +8,6 @@ import distributed.tracing.Graph;
 public class RoutesCounter {
 
     private final Graph graph;
-    private final AverageLatencyCalculator latencyCalculator;
 
     public RoutesCounter(String route) {
         this(new Graph(route));
@@ -16,7 +15,6 @@ public class RoutesCounter {
 
     public RoutesCounter(Graph graph) {
         this.graph = graph;
-        this.latencyCalculator = new AverageLatencyCalculator(graph);
     }
 
     /**
@@ -32,7 +30,6 @@ public class RoutesCounter {
     }
 
     private class RoutesCounterInternal {
-        private final Character fromChr;
         private final int fromIdx;
         private final int toIdx;
         private final int maxDistance;
@@ -41,7 +38,6 @@ public class RoutesCounter {
         private RoutesCounterInternal(Character fromChr,
                                       Character toChr,
                                       int maxDistance) {
-            this.fromChr = fromChr;
             this.fromIdx = Graph.toNodeIdx(fromChr);
             this.toIdx = Graph.toNodeIdx(toChr);
             this.maxDistance = maxDistance;
@@ -50,23 +46,21 @@ public class RoutesCounter {
         }
 
         public int count() {
-            count(fromIdx, Graph.toNodeName(fromChr));
+            count(fromIdx, 0);
             return routesCount;
         }
 
-        private void count(int from, String path) {
+        private void count(int from, int distance) {
             List<Edge> edges = graph.edges(from);
             for (Edge edge : edges) {
-                String next = path + Graph.toNodeName(edge.toIdx);
-                int distance = latencyCalculator.calcAvgLatency(next)
-                        .orElse(Integer.MAX_VALUE);
+                int nextDistance = distance + edge.weight;
                 if (this.toIdx == edge.toIdx
-                        && distance < maxDistance) {
+                        && nextDistance < maxDistance) {
                     routesCount++;
                 }
 
-                if (distance < maxDistance) {
-                    count(edge.toIdx, next);
+                if (nextDistance < maxDistance) {
+                    count(edge.toIdx, nextDistance);
                 }
             }
         }

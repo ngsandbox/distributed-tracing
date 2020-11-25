@@ -1,26 +1,21 @@
 package distributed.tracing.strategies;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.Optional;
 
 import distributed.tracing.Edge;
 import distributed.tracing.Graph;
 
-import static distributed.tracing.Graph.toNodeName;
 import static distributed.tracing.strategies.AverageLatencyCalculator.NO_SUCH_TRACE;
 
 public class ShortestTraceCalculator {
 
     private final Graph graph;
-    private final AverageLatencyCalculator averageLatencyCalculator;
 
     public ShortestTraceCalculator(String route) {
         this(new Graph(route));
     }
 
     public ShortestTraceCalculator(Graph graph) {
-        this.averageLatencyCalculator = new AverageLatencyCalculator(graph);
         this.graph = graph;
     }
 
@@ -32,46 +27,39 @@ public class ShortestTraceCalculator {
      * @return length of the shortest trace or {@literal NO SUCH TRACE} if traces has not been found
      */
     public String calculateStr(char fromChr, char toChr) {
-        OptionalInt result = new ShortestTraceCalculatorInternal(fromChr, toChr).calculate();
-        if (result.isPresent()) {
-            return Integer.toString(result.getAsInt());
-        }
-
-        return NO_SUCH_TRACE;
+        return new ShortestTraceCalculatorInternal(fromChr, toChr)
+                .calculate().map(Object::toString)
+                .orElse(NO_SUCH_TRACE);
     }
 
     public class ShortestTraceCalculatorInternal {
-        private final List<String> allPath;
         private final char fromChr;
         private final int toIdx;
+        private int minTrace;
 
         public ShortestTraceCalculatorInternal(char fromChr, char toChr) {
             this.fromChr = fromChr;
             this.toIdx = Graph.toNodeIdx(toChr);
-            this.allPath = new ArrayList<>();
+            this.minTrace = Integer.MAX_VALUE;
         }
 
-        public OptionalInt calculate() {
+        public Optional<Integer> calculate() {
             int from = Graph.toNodeIdx(fromChr);
-            calculatePath(from, "");
-
-            return allPath.stream()
-                    .map(averageLatencyCalculator::calcAvgLatency)
-                    .filter(OptionalInt::isPresent)
-                    .mapToInt(OptionalInt::getAsInt)
-                    .min();
+            calculatePath(from, 0, 0);
+            return Optional.of(minTrace)
+                    .filter(t -> t != Integer.MAX_VALUE);
         }
 
-        private void calculatePath(int from, String path) {
+        private void calculatePath(int from, int sumWeight, int iterations) {
             Edge toEdge = graph.findEdge(from, this.toIdx);
             if (toEdge != null) {
-                allPath.add(toNodeName(fromChr) + path + toNodeName(this.toIdx));
+                minTrace = Math.min(minTrace, sumWeight + toEdge.weight);
                 return;
             }
 
             for (Edge edge : graph.edges(from)) {
-                if (path.length() < graph.limit()) {
-                    calculatePath(edge.toIdx, path + toNodeName(edge.toIdx));
+                if (iterations < graph.limit()) {
+                    calculatePath(edge.toIdx, sumWeight + edge.weight, ++iterations);
                 } else {
                     //throw new IllegalStateException("Perhaps an infinite loop detected for path: " + next);
                 }
