@@ -48,6 +48,9 @@ class AppTest {
         ShortestTraceCalculator calculator = new ShortestTraceCalculator(TEST_CASE);
         assertEquals("9", calculator.calculateStr('A', 'C'));
         assertEquals("9", calculator.calculateStr('B', 'B'));
+
+        ShortestTraceCalculator calculator1 = new ShortestTraceCalculator("AB5, DC7");
+        assertEquals("NO SUCH TRACE", calculator1.calculateStr('A', 'C'));
     }
 
     @Test
@@ -82,8 +85,6 @@ class AppTest {
                 () -> new Graph("5B5, 5C4"), "Microservice name has to be letter");
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new Graph("B55, C54"), "Microservice name has to be letter");
-        Assertions.assertThrows(IndexOutOfBoundsException.class,
-                () -> new RoutesCounter("BE5, CF4").count('D', 'X', 30), "Microservice has not been registered");
     }
 
 }

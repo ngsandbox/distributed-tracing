@@ -1,6 +1,7 @@
 package distributed.tracing;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,19 +82,13 @@ public class Graph {
     }
 
     public Edge findEdge(int fromIdx, int toIdx) {
-        assertName(fromIdx);
-        return matrix.get(fromIdx).get(toIdx);
-    }
-
-    private void assertName(int fromIdx) {
-        if (!matrix.containsKey(fromIdx)) {
-            throw new IndexOutOfBoundsException("Microservice " + toNodeName(fromIdx) + " not exists");
-        }
+        Map<Integer, Edge> toEdge = matrix.get(fromIdx);
+        return toEdge != null ? toEdge.get(toIdx) : null;
     }
 
     public List<Edge> edges(int fromIdx) {
-        assertName(fromIdx);
-        return new ArrayList<>(matrix.get(fromIdx).values());
+        Map<Integer, Edge> toEdges = matrix.get(fromIdx);
+        return toEdges != null ? new ArrayList<>(toEdges.values()) : Collections.emptyList();
     }
 
     public int limit() {
