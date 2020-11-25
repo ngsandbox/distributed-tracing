@@ -1,13 +1,12 @@
 package distributed.tracing.strategies;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 
 import distributed.tracing.Edge;
 import distributed.tracing.Graph;
 
 public class AverageLatencyCalculator {
-
-    public static int TRACE_NOT_FOUNT = -1;
+    public static String NO_SUCH_TRACE = "NO SUCH TRACE";
 
     private final Graph graph;
 
@@ -30,7 +29,12 @@ public class AverageLatencyCalculator {
      * or {@literal NO SUCH TRACE} if trace route has not been found
      */
     public String calculate(String trace) {
-        return calcAvgLatency(trace).map(Object::toString).orElse("NO SUCH TRACE");
+        OptionalInt result = calcAvgLatency(trace);
+        if (result.isPresent()) {
+            return Integer.toString(result.getAsInt());
+        }
+
+        return NO_SUCH_TRACE;
     }
 
     /**
@@ -40,30 +44,34 @@ public class AverageLatencyCalculator {
      * or {@literal empty} if trace route has not been found
      * @throws IllegalArgumentException if trace is empty or specified microservice name is not exist
      */
-    public Optional<Integer> calcAvgLatency(String trace) {
+    public OptionalInt calcAvgLatency(String trace) {
         if (trace == null) {
-            return Optional.empty();
+            return OptionalInt.empty();
         }
-
-        int distance = 0;
-        int fromIdx, toIdx;
 
         char[] chars = trace.trim().toCharArray();
         if (chars.length == 0) {
-            return Optional.empty();
+            return OptionalInt.empty();
         }
 
+        boolean found = false;
+        int distance = 0;
         for (int i = 0; i < chars.length - 1; ) {
-            fromIdx = Graph.toNodeIdx(chars[i++]);
-            toIdx = Graph.toNodeIdx(chars[i]);
+            int fromIdx = Graph.toNodeIdx(chars[i++]);
+            int toIdx = Graph.toNodeIdx(chars[i]);
             Edge toEdge = graph.findEdge(fromIdx, toIdx);
             if (toEdge != null) {
+                found = true;
                 distance += toEdge.weight;
             } else {
-                return Optional.empty();
+                return OptionalInt.empty();
             }
         }
 
-        return Optional.of(distance);
+        if (!found) {
+            return OptionalInt.empty();
+        }
+
+        return OptionalInt.of(distance);
     }
 }

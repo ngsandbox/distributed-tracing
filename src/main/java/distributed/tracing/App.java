@@ -34,8 +34,8 @@ public class App {
         System.out.println(counter.count('A', 'C', t -> t == 4));
         ShortestTraceCalculator shortestTraceCalculator = new ShortestTraceCalculator(calculator.getGraph());
 
-        System.out.println(shortestTraceCalculator.calculate('A', 'C'));
-        System.out.println(shortestTraceCalculator.calculate('B', 'B'));
+        System.out.println(shortestTraceCalculator.calculateStr('A', 'C'));
+        System.out.println(shortestTraceCalculator.calculateStr('B', 'B'));
 
         RoutesCounter routesCounter = new RoutesCounter(calculator.getGraph());
         System.out.println(routesCounter.count('C', 'C', 30));

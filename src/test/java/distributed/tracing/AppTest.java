@@ -46,14 +46,14 @@ class AppTest {
     @Test
     void testShortestPath() {
         ShortestTraceCalculator calculator = new ShortestTraceCalculator(TEST_CASE);
-        assertEquals(9, calculator.calculate('A', 'C'));
-        assertEquals(9, calculator.calculate('B', 'B'));
+        assertEquals("9", calculator.calculateStr('A', 'C'));
+        assertEquals("9", calculator.calculateStr('B', 'B'));
     }
 
     @Test
     void testFailShortestPath() {
         ShortestTraceCalculator calculator = new ShortestTraceCalculator(TEST_CASE);
-        assertNotEquals(12, calculator.calculate('A', 'F'));
+        assertNotEquals("12", calculator.calculateStr('A', 'F'));
     }
 
     @Test

@@ -2,13 +2,13 @@ package distributed.tracing.strategies;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalInt;
 
 import distributed.tracing.Edge;
 import distributed.tracing.Graph;
 
 import static distributed.tracing.Graph.toNodeName;
-import static distributed.tracing.strategies.AverageLatencyCalculator.TRACE_NOT_FOUNT;
+import static distributed.tracing.strategies.AverageLatencyCalculator.NO_SUCH_TRACE;
 
 public class ShortestTraceCalculator {
 
@@ -29,10 +29,15 @@ public class ShortestTraceCalculator {
      *
      * @param fromChr start Microservice
      * @param toChr   end Microservice
-     * @return length of the shortest trace or {@literal -1} if traces has not been found
+     * @return length of the shortest trace or {@literal NO SUCH TRACE} if traces has not been found
      */
-    public int calculate(char fromChr, char toChr) {
-        return new ShortestTraceCalculatorInternal(fromChr, toChr).calculate();
+    public String calculateStr(char fromChr, char toChr) {
+        OptionalInt result = new ShortestTraceCalculatorInternal(fromChr, toChr).calculate();
+        if (result.isPresent()) {
+            return Integer.toString(result.getAsInt());
+        }
+
+        return NO_SUCH_TRACE;
     }
 
     public class ShortestTraceCalculatorInternal {
@@ -46,15 +51,15 @@ public class ShortestTraceCalculator {
             this.allPath = new ArrayList<>();
         }
 
-        public int calculate() {
+        public OptionalInt calculate() {
             int from = Graph.toNodeIdx(fromChr);
             calculatePath(from, "");
 
             return allPath.stream()
                     .map(averageLatencyCalculator::calcAvgLatency)
-                    .filter(Optional::isPresent)
-                    .mapToInt(Optional::get)
-                    .min().orElse(TRACE_NOT_FOUNT);
+                    .filter(OptionalInt::isPresent)
+                    .mapToInt(OptionalInt::getAsInt)
+                    .min();
         }
 
         private void calculatePath(int from, String path) {
